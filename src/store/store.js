@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import pingReducer from "./StockSlice";
-import CompanySlice from "./CompanySlice"
+import CompanySlice from "./CompanySlice";
+import SelectedCompanySlice from "./SelectedCompanySlice";
 
 export const store = configureStore({
   reducer: {
-    ping: pingReducer,
-     companies: CompanySlice,
+    companies: CompanySlice,           // For companies + historical data
+    selectedCompany: SelectedCompanySlice // For which company is selected
   },
 });

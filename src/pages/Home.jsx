@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Navbar from '../components/Navbar';
+import CompanySelector from "../components/CompanySelector";
 import StockDashboard from "../components/StockDashboard";
 
 const Home = () => {
@@ -19,18 +19,19 @@ const Home = () => {
         return () => clearInterval(interval);
       }, []);
   return (
-        <div className="min-h-screen bg-blue-900 text-white">
-      {/* Navbar at top */}
-      <Navbar />
-      <StockDashboard/>
-
-      {/* Centered content */}
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <h1 className="text-3xl font-bold">
-          Backend says: {response}
-        </h1>
+     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          {/* Company Selector at the top */}
+          <div className="mb-8">
+            <CompanySelector />
+          </div>
+          
+          {/* Stock Dashboard below */}
+          <div className="w-full">
+            <StockDashboard />
+          </div>
+        </div>
       </div>
-    </div>
   )
 }
 
