@@ -30,9 +30,7 @@ def get_db():
     finally:
         db.close()
 
-# -----------------------
 # Endpoints
-# -----------------------
 @app.get("/ping")
 async def ping():
     return {"message": "pong"}

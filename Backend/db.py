@@ -6,16 +6,18 @@ import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
 from fastapi import HTTPException
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  
 
 # Database setup
-DATABASE_URL = "postgresql://stockuser:keira@localhost/stockdb"
+DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# -----------------------
 # Models
-# -----------------------
 class Company(Base):
     __tablename__ = "companies"
     id = Column(Integer, primary_key=True, index=True)
@@ -38,9 +40,8 @@ class HistoricalPrice(Base):
 # Create tables if not exist
 Base.metadata.create_all(bind=engine)
 
-# -----------------------
+
 # Helper functions
-# -----------------------
 def populate_companies_db(db: Session):
     """Populate DB with first 10 S&P 500 companies"""
     try:
@@ -100,9 +101,7 @@ def populate_historical_data(db: Session, ticker: str, days: int = 30):
         db.rollback()
         raise e
 
-# -----------------------
 # Fallback functions
-# -----------------------
 async def get_companies_fallback():
     try:
         url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
