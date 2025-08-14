@@ -75,50 +75,55 @@ const StockDashboard = () => {
   }
   
   return (
-    <div className="space-y-6">
+     <div className="space-y-6 w-full sm:w-[95vw] lg:w-[85vw] 2xl:w-[70vw] mx-auto">
       {/* Stock Statistics */}
       <StockStats data={stockData} />
       
       {/* Chart Section */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedTicker} Stock Price</h2>
-          <p className="text-gray-600">Historical price movement and trends</p>
+          <h2 className="sm:text-2xl 2xl:text-4xl text-xl font-bold text-gray-900 mb-2">{selectedTicker} Stock Price</h2>
+          <p className="sm:text-2xl 2xl:text-4xl text-xl text-gray-600">Historical price movement and trends</p>
         </div>
         
-        <div className="p-6">
+         <div className="sm:p-6 p-2 h-96 sm:h-[700px]">
           <StockChart data={stockData} ticker={selectedTicker} />
         </div>
+
+
+
+
+
       </div>
       
       {/* Data Table */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Historical Data</h3>
-          <p className="text-gray-600">Detailed price and volume information</p>
+          <h3 className="sm:text-2xl  text-xl font-bold 2xl:text-4xl text-gray-900 mb-2">Historical Data</h3>
+          <p className="text-gray-600 sm:text-2xl 2xl:text-4xl text-xl">Detailed price and volume information</p>
         </div>
         
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Open</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">High</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Low</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Close</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Volume</th>
+                <th className="px-6 py-4 text-left text-lg sm:text-2xl xl:text-4xl font-semibold text-gray-700">Date</th>
+                <th className="px-6 py-4 text-right text-lg sm:text-2xl xl:text-4xl font-semibold text-gray-700">Open</th>
+                <th className="px-6 py-4 text-right text-lg sm:text-2xl xl:text-4xl font-semibold text-gray-700">High</th>
+                <th className="px-6 py-4 text-right text-lg sm:text-2xl xl:text-4xl font-semibold text-gray-700">Low</th>
+                <th className="px-6 py-4 text-right text-lg sm:text-2xl xl:text-4xl font-semibold text-gray-700">Close</th>
+                <th className="px-6 py-4 text-right text-lg sm:text-2xl xl:text-4xl font-semibold text-gray-700">Volume</th>
               </tr>
             </thead>
             <tbody>
               {stockData.map((record, idx) => (
                 <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">{record.date}</td>
-                  <td className="px-6 py-4 text-sm text-right text-gray-700">${parseFloat(record.open).toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm text-right text-gray-700">${parseFloat(record.high).toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm text-right text-gray-700">${parseFloat(record.low).toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm text-right font-semibold text-gray-900">${parseFloat(record.close).toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm text-right text-gray-700">{parseInt(record.volume).toLocaleString()}</td>
+                  <td className="px-6 py-4 text-lg sm:text-2xl text-gray-900 font-medium">{record.date}</td>
+                  <td className="px-6 py-4 text-lg sm:text-2xl text-right text-gray-700">${parseFloat(record.open).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-lg sm:text-2xl text-right text-gray-700">${parseFloat(record.high).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-lg sm:text-2xl text-right text-gray-700">${parseFloat(record.low).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-lg sm:text-2xl text-right font-semibold text-gray-900">${parseFloat(record.close).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-lg sm:text-2xl text-right text-gray-700">{parseInt(record.volume).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

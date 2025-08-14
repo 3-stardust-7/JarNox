@@ -74,7 +74,7 @@ const StockStats = ({ data }) => {
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       {stats.map((stat, index) => (
         <div key={index} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <div className="flex items-center space-x-2 mb-2">
+          <div className="flex justify-center items-center space-x-2 mb-2">
             <div className={`p-1 rounded-full ${
               stat.color === 'text-green-600' ? 'bg-green-50' :
               stat.color === 'text-red-600' ? 'bg-red-50' : 'bg-gray-50'
@@ -84,9 +84,9 @@ const StockStats = ({ data }) => {
                 stat.color === 'text-red-600' ? 'text-red-600' : 'text-gray-500'
               }`} />
             </div>
-            <span className="text-sm text-gray-600">{stat.label}</span>
+            <span className="text-sm sm:text-lg xl:text-2xl 2xl:text-4xl text-gray-600 ">{stat.label}</span>
           </div>
-          <div className={`text-lg font-semibold ${stat.color}`}>
+          <div className={`text-sm sm:text-lg xl:text-xl 2xl:text-3xl flex justify-center font-semibold ${stat.color}`}>
             {stat.value}
           </div>
         </div>

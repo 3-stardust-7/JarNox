@@ -20,9 +20,9 @@ const Home = () => {
       }, []);
   return (
      <div className=" bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="container mx-auto 2xl:mx-140 px-4 py-8 w-full">
           {/* Company Selector at the top */}
-          <div className="mb-8">
+          <div>
             <CompanySelector />
           </div>
           

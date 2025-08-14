@@ -30,7 +30,7 @@ const Sidebar = () => {
       {/* Sidebar */}
       <div
         className={`w-80 bg-white shadow-xl flex flex-col fixed inset-y-0 left-0 z-40 transform transition-transform duration-300
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 2xl:translate-x-0`}
       >
         {/* Close button for mobile */}
         <button
@@ -85,7 +85,7 @@ const Sidebar = () => {
         {/* Toggle button for mobile */}
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="lg:hidden mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+          className="2xl:hidden mb-4 px-4 py-2 bg-blue-500 text-white rounded"
         >
           Open Companies
         </button>
