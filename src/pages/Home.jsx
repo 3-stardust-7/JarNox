@@ -21,11 +21,22 @@ const Home = () => {
       }, []);
   return (
      <div className=" bg-gradient-to-b from-gray-900  via-indigo-900 to-gray-900">
-   <div className="h-auto ">
-  <img src="/JarNox.png" alt="JarNox Logo" className=" ml-4 h-20 w-20 sm:ml-20 lg:ml-40 2xl:ml-168" />
-</div> 
+<div className="container mx-auto px-4 py-8 w-full">
+  <div className="flex items-center h-auto">
+    <img
+      src="/JarNox.png"
+      alt="JarNox Logo"
+      className="sm:m-4 mb-4 sm:mb-6 h-12 w-12 sm:w-16 sm:h-16 xl:w-24 xl:h-24"
+    />
+    <div className="ml-3 text-white text-xl sm:text-3xl xl:text-5xl font-bold">
+      JarNox
+    </div>
+  </div>
+</div>
 
         <div className="container mx-auto  px-4 py-8 w-full">
+
+
           {/* Company Selector at the top */}
           <div>
             <CompanySelector />

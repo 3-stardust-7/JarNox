@@ -68,12 +68,12 @@ const Sidebar = () => {
           
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-2">
-              <div className=" bg-white bg-opacity-20 rounded-lg">
+              <div className=" bg-gray-500 bg-opacity-20 rounded-lg">
                 <Building2 className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl font-bold">Companies</h2>
+              <h2 className="text-2xl text-gray-500 font-bold">Companies</h2>
             </div>
-            <p className="text-blue-500 text-lg sm:text-xl lg:text-2xl 2xl:text-5xl font-bold">Select a company to view stock data</p>
+            <p className="text-blue-900 text-lg sm:text-xl lg:text-2xl 2xl:text-5xl font-bold">Select a company to view stock data</p>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ const Sidebar = () => {
                   {/* Company Icon */}
                   <div className={`w-12 h-12 xl:w-16 xl:h-16 sm:mr-2 rounded-xl flex items-center justify-center font-bold sm:text-lg text-sm xl:text-2xl transition-all
                     ${selectedTicker === company.ticker 
-                      ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg'
+                      ? 'bg-gradient-to-br from-blue-900 to-indigo-600 text-white shadow-lg'
                       : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 group-hover:from-blue-100 group-hover:to-indigo-100 group-hover:text-blue-600'
                     }`}
                   >
@@ -143,8 +143,8 @@ const Sidebar = () => {
                   <div className="flex-1 min-w-0">
                     <div className={`font-bold sm:text-lg text-sm xl:text-2xl transition-colors truncate
                       ${selectedTicker === company.ticker
-                        ? 'text-blue-700'
-                        : 'text-gray-900 group-hover:text-blue-600'
+                        ? 'text-blue-800'
+                        : 'text-gray-900 group-hover:text-blue-700'
                       }`}
                     >
                       {company.ticker}
@@ -179,8 +179,8 @@ const Sidebar = () => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50">
-          <p className="text-xs text-gray-500 text-center">
+        <div className="p-4 border-t border-gray-100 bg-gray-300">
+          <p className="text-sm lg:text-xl text-blue-900 font-bold text-center">
             {filteredCompanies.length} companies available
           </p>
         </div>
@@ -191,7 +191,7 @@ const Sidebar = () => {
         {/* Toggle button for mobile */}
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="2xl:hidden fixed top-4 left-4 z-20 p-3 bg-white text-gray-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border border-gray-200"
+          className="2xl:hidden fixed top-4 right-4 z-20 p-3 bg-white text-gray-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border border-gray-200"
         >
           <Menu className="w-5 h-5" />
         </button>
