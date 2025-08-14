@@ -1,9 +1,9 @@
 // src/store/companySlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = "https://jarnox-production.up.railway.app";
 
-// ✅ Async thunk to fetch companies from FastAPI
+//  Async thunk to fetch companies from FastAPI
 export const fetchCompanies = createAsyncThunk(
   "companies/fetchCompanies",
   async (_, { rejectWithValue }) => {
@@ -18,17 +18,17 @@ export const fetchCompanies = createAsyncThunk(
       }
       
       const data = await response.json();
-      console.log("✅ Companies data received:", data);
+      console.log(" Companies data received:", data);
       
       return data;
     } catch (error) {
-      console.error("❌ Error fetching companies:", error.message);
+      console.error(" Error fetching companies:", error.message);
       return rejectWithValue(error.message);
     }
   }
 );
 
-// ✅ Async thunk to populate companies in database
+// Async thunk to populate companies in database
 export const populateCompanies = createAsyncThunk(
   "companies/populateCompanies",
   async (_, { rejectWithValue }) => {
@@ -46,17 +46,17 @@ export const populateCompanies = createAsyncThunk(
       }
       
       const result = await response.json();
-      console.log("✅ Companies populated:", result);
+      console.log(" Companies populated:", result);
       
       return result;
     } catch (error) {
-      console.error("❌ Error populating companies:", error.message);
+      console.error(" Error populating companies:", error.message);
       return rejectWithValue(error.message);
     }
   }
 );
 
-// ✅ Async thunk to fetch historical data
+//  Async thunk to fetch historical data
 export const fetchHistoricalData = createAsyncThunk(
   "companies/fetchHistoricalData",
   async ({ ticker, startDate, endDate, interval = "1d" }, { rejectWithValue }) => {
@@ -83,17 +83,17 @@ export const fetchHistoricalData = createAsyncThunk(
       }
       
       const data = await response.json();
-      console.log(`✅ Historical data received for ${ticker}:`, data);
+      console.log(` Historical data received for ${ticker}:`, data);
       
       return data;
     } catch (error) {
-      console.error(`❌ Error fetching historical data for ${ticker}:`, error.message);
+      console.error(` Error fetching historical data for ${ticker}:`, error.message);
       return rejectWithValue(error.message);
     }
   }
 );
 
-// ✅ Async thunk to check database status
+// Async thunk to check database status
 export const checkDbStatus = createAsyncThunk(
   "companies/checkDbStatus",
   async (_, { rejectWithValue }) => {
@@ -106,11 +106,11 @@ export const checkDbStatus = createAsyncThunk(
       }
       
       const data = await response.json();
-      console.log("✅ Database status:", data);
+      console.log("Database status:", data);
       
       return data;
     } catch (error) {
-      console.error("❌ Error checking database status:", error.message);
+      console.error(" Error checking database status:", error.message);
       return rejectWithValue(error.message);
     }
   }
