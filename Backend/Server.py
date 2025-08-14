@@ -1,82 +1,125 @@
 # Backend/Server.py
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-from .db import (
-    Company, HistoricalPrice,
-    SessionLocal,
-    populate_companies_db,
-    populate_historical_data,
-    get_companies_fallback,
-    get_historical_fallback
-)
+import pandas as pd
+import yfinance as yf
+from datetime import datetime, timedelta
 
 app = FastAPI(title="Stock Data API")
 
-# CORS
+# CORS - Add your Vercel URL
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://jar-nox.vercel.app"], 
+    allow_origins=[
+        "https://jar-nox-git-main-v-kirubhas-projects.vercel.app",
+        "https://jar-nox.vercel.app",
+        "http://localhost:3000",  # for local development
+        "http://localhost:5173"   # for Vite dev server
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Root endpoint
+@app.get("/")
+async def root():
+    return {"message": "Stock Data API is running!"}
 
-# Endpoints
+# Health check endpoint
 @app.get("/ping")
 async def ping():
     return {"message": "pong"}
 
-@app.post("/populate-companies")
-async def populate_companies(db: Session = Depends(get_db)):
-    try:
-        populate_companies_db(db)
-        count = db.query(Company).count()
-        return {"message": f"Companies populated: {count}"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
+# Get companies (API-only version)
 @app.get("/companies")
-async def get_companies(db: Session = Depends(get_db)):
+async def get_companies():
+    """Get first 10 S&P 500 companies from Wikipedia"""
     try:
-        companies = db.query(Company).all()
-        if not companies:
-            populate_companies_db(db)
-            companies = db.query(Company).all()
-        return [{"ticker": c.ticker, "name": c.name} for c in companies]
-    except Exception:
-        return await get_companies_fallback()
-
-@app.get("/historical/{ticker}")
-async def get_historical(ticker: str, start_date: str = None, end_date: str = None, db: Session = Depends(get_db)):
-    try:
-        company = db.query(Company).filter(Company.ticker == ticker).first()
-        if not company:
-            raise HTTPException(status_code=404, detail=f"{ticker} not found")
-        data = db.query(HistoricalPrice).filter(HistoricalPrice.company_id == company.id).order_by(HistoricalPrice.date.desc()).all()
-        if not data:
-            populate_historical_data(db, ticker)
-            data = db.query(HistoricalPrice).filter(HistoricalPrice.company_id == company.id).order_by(HistoricalPrice.date.desc()).all()
-        result = [{"date": d.date.strftime("%Y-%m-%d"), "open": d.open_price, "high": d.high_price, "low": d.low_price, "close": d.close_price, "volume": d.volume} for d in data]
-        return {"ticker": ticker, "historical_data": result}
-    except Exception:
-        return await get_historical_fallback(ticker, start_date, end_date)
-
-@app.get("/db-status")
-async def get_db_status(db: Session = Depends(get_db)):
-    try:
-        return {
-            "status": "connected",
-            "companies": db.query(Company).count(),
-            "historical_records": db.query(HistoricalPrice).count()
-        }
+        print("Fetching companies from Wikipedia...")
+        url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+        table = pd.read_html(url)[0]
+        
+        companies = []
+        for symbol in table["Symbol"].unique()[:10]:
+            try:
+                ticker_obj = yf.Ticker(symbol)
+                info = ticker_obj.info
+                name = info.get("longName", symbol)
+            except Exception as e:
+                print(f"Error getting info for {symbol}: {e}")
+                name = symbol
+            
+            companies.append({
+                "ticker": symbol, 
+                "name": name
+            })
+        
+        print(f"Successfully fetched {len(companies)} companies")
+        return companies
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error fetching companies: {e}")
+        raise HTTPException(status_code=500, detail=f"Error fetching companies: {str(e)}")
+
+# Get historical data (API-only version)
+@app.get("/historical/{ticker}")
+async def get_historical(ticker: str, start_date: str = None, end_date: str = None):
+    """Get historical stock data for a ticker"""
+    try:
+        print(f"Fetching historical data for {ticker}...")
+        
+        ticker_obj = yf.Ticker(ticker)
+        
+        # Set default date range if not provided
+        if not start_date or not end_date:
+            end = datetime.today()
+            start = end - timedelta(days=30)
+            start_date = start.strftime("%Y-%m-%d")
+            end_date = end.strftime("%Y-%m-%d")
+        
+        # Fetch historical data
+        hist = ticker_obj.history(start=start_date, end=end_date)
+        
+        if hist.empty:
+            raise HTTPException(status_code=404, detail=f"No data found for ticker {ticker}")
+        
+        # Convert to list of dictionaries
+        hist = hist.reset_index()
+        data = []
+        
+        for _, row in hist.iterrows():
+            data.append({
+                "date": row["Date"].strftime("%Y-%m-%d"),
+                "open": float(row["Open"]),
+                "high": float(row["High"]),
+                "low": float(row["Low"]),
+                "close": float(row["Close"]),
+                "volume": float(row["Volume"])
+            })
+        
+        print(f"Successfully fetched {len(data)} records for {ticker}")
+        return {
+            "ticker": ticker.upper(),
+            "historical_data": data
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error fetching historical data for {ticker}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error fetching data for {ticker}: {str(e)}")
+
+# API status endpoint
+@app.get("/status")
+async def get_status():
+    """Get API status"""
+    return {
+        "status": "running",
+        "message": "Stock Data API is operational",
+        "endpoints": [
+            "/companies - Get list of companies",
+            "/historical/{ticker} - Get historical data for a ticker",
+            "/ping - Health check"
+        ]
+    }
