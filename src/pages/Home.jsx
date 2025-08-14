@@ -7,7 +7,7 @@ const Home = () => {
     const [response, setResponse] = useState("");
     
       const fetchPing = () => {
-        fetch("http://127.0.0.1:8000/ping")
+        fetch("https://jarnox-production.up.railway.app")
           .then(res => res.json())
           .then(data => setResponse(data.message))
           .catch(err => console.error("Error:", err));

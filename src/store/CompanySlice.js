@@ -8,7 +8,7 @@ export const fetchCompanies = createAsyncThunk(
   "companies/fetchCompanies",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("🚀 Fetching companies from API...");
+      console.log(" Fetching companies from API...");
       const response = await fetch(`${API_BASE_URL}/companies`);
       
       console.warn("RESPONSEEEEEEEEE: ", response);
