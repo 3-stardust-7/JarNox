@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const API_BASE_URL = "https://jarnox-production.up.railway.app";
-
+// const API_BASE_URL = "http://127.0.0.1:8000";
 //  Async thunk to fetch companies from FastAPI
 export const fetchCompanies = createAsyncThunk(
   "companies/fetchCompanies",
@@ -57,41 +57,57 @@ export const populateCompanies = createAsyncThunk(
 );
 
 //  Async thunk to fetch historical data
+// store/CompanySlice.js (or similar)
+
 export const fetchHistoricalData = createAsyncThunk(
   "companies/fetchHistoricalData",
-  async ({ ticker, startDate, endDate, interval = "1d" }, { rejectWithValue }) => {
+  async ({ ticker, startDate, endDate }, { rejectWithValue }) => {
     try {
-      console.log(`🚀 Fetching historical data for ${ticker}...`);
-      
+      console.log(`🚀 Populating historical data for ${ticker}...`);
+
       let url = `${API_BASE_URL}/historical/${ticker}`;
       const params = new URLSearchParams();
-      
+
       if (startDate) params.append("start_date", startDate);
       if (endDate) params.append("end_date", endDate);
-      if (interval) params.append("interval", interval);
-      
+
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-      
-      const response = await fetch(url);
-      
-      console.warn(`HISTORICAL RESPONSE for ${ticker}: `, response);
-      
+
+      console.warn("📡 Historical URL:", url);
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.warn("00000000000000000000",response)
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
-      const data = await response.json();
-      console.log(` Historical data received for ${ticker}:`, data);
-      
-      return data;
+
+      const result = await response.json();
+      console.log(`📈 Historical data populated for ${ticker}:`, result);
+
+      // result will look like:
+      // {
+      //   ticker: "MMM",
+      //   historical_data: [
+      //     { date: "2025-08-10", open: ..., high: ..., low: ..., close: ..., volume: ... },
+      //     ...
+      //   ]
+      // }
+      return result;
     } catch (error) {
-      console.error(` Error fetching historical data for ${ticker}:`, error.message);
+      console.error(`❌ Error populating historical data for ${ticker}:`, error.message);
       return rejectWithValue(error.message);
     }
   }
 );
+
 
 // Async thunk to check database status
 export const checkDbStatus = createAsyncThunk(
