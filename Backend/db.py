@@ -86,16 +86,21 @@ def populate_companies_db(db: Session):
                 if existing:
                     continue
                 
-                # Try to get company name
+                # Try to get company name with rate limiting protection
                 try:
+                    import time
+                    time.sleep(0.1)  # Small delay to avoid rate limiting
                     ticker_obj = yf.Ticker(symbol)
                     info = ticker_obj.info
                     name = info.get("longName", symbol)
                     if not name or len(name) > 255:  # Ensure name fits in database
                         name = symbol
                 except Exception as yf_error:
-                    print(f" yfinance failed for {symbol}: {yf_error}")
+                    print(f"  yfinance failed for {symbol}: {yf_error}")
                     name = symbol
+                    if "429" in str(yf_error):  # Rate limited
+                        print("Rate limited, using symbol as name")
+                        time.sleep(1)  # Longer delay if rate limited
 
                 # Create and save company
                 company = Company(ticker=symbol, name=name)
@@ -103,7 +108,7 @@ def populate_companies_db(db: Session):
                 db.commit()
                 db.refresh(company)
                 companies_added += 1
-                print(f"Added {symbol}: {name}")
+                print(f" Added {symbol}: {name}")
 
             except Exception as e:
                 print(f" Error processing {symbol}: {e}")
@@ -194,7 +199,7 @@ async def get_companies_fallback():
             
         return companies
     except Exception as e:
-        print(f"Error in companies fallback: {e}")
+        print(f" Error in companies fallback: {e}")
         # Ultimate fallback
         return [
             {"ticker": "AAPL", "name": "Apple Inc."},
