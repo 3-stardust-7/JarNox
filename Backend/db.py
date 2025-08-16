@@ -1,3 +1,4 @@
+# Backend/db.py
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, Session
@@ -8,28 +9,15 @@ from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv()  
 
-# DB Setup 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://stockuser:keira@localhost/stockdb")
-
-engine = None
-SessionLocal = None
+# Database setup
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-try:
-    engine = create_engine(DATABASE_URL)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-    # Try to create tables
-    Base.metadata.create_all(bind=engine)
-    print(" Database connected.")
-except Exception as e:
-    print(f"Database not connected: {e}")
-    engine = None
-    SessionLocal = None
-
-# Models 
+# Models
 class Company(Base):
     __tablename__ = "companies"
     id = Column(Integer, primary_key=True, index=True)
@@ -49,80 +37,69 @@ class HistoricalPrice(Base):
     volume = Column(Float)
     company = relationship("Company", back_populates="historical_prices")
 
+# Create tables if not exist
+Base.metadata.create_all(bind=engine)
+
+
 # Helper functions
 def populate_companies_db(db: Session):
-    if not db:
-        print(" Skipping DB population (no database connected).")
-        return
-    # ... your existing populate logic ...
+    """Populate DB with first 10 S&P 500 companies"""
+    try:
+        if db.query(Company).count() > 0:
+            return
+
+        url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+        table = pd.read_html(url)[0]
+
+        for symbol in table["Symbol"].unique()[:10]:
+            try:
+                ticker_obj = yf.Ticker(symbol)
+                name = ticker_obj.info.get("longName", symbol)
+            except Exception:
+                name = symbol
+
+            company = Company(ticker=symbol, name=name)
+            db.add(company)
+            db.commit()
+            db.refresh(company)
+
+    except Exception as e:
+        db.rollback()
+        raise e
 
 def populate_historical_data(db: Session, ticker: str, days: int = 30):
-    if not db:
-        print(" Skipping historical data population (no database connected).")
-        return
-# Create tables if not exist
-# Base.metadata.create_all(bind=engine)
+    try:
+        company = db.query(Company).filter(Company.ticker == ticker).first()
+        if not company:
+            raise ValueError(f"Company {ticker} not found")
 
+        if db.query(HistoricalPrice).filter(HistoricalPrice.company_id == company.id).count() > 0:
+            return
 
-# Helper functions
-# def populate_companies_db(db: Session):
-#     """Populate DB with first 10 S&P 500 companies"""
-#     try:
-#         if db.query(Company).count() > 0:
-#             return
+        ticker_obj = yf.Ticker(ticker)
+        end = datetime.today()
+        start = end - timedelta(days=days)
 
-#         url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-#         table = pd.read_html(url)[0]
+        hist = ticker_obj.history(start=start.strftime("%Y-%m-%d"), end=end.strftime("%Y-%m-%d"))
+        if hist.empty:
+            return
 
-#         for symbol in table["Symbol"].unique()[:10]:
-#             try:
-#                 ticker_obj = yf.Ticker(symbol)
-#                 name = ticker_obj.info.get("longName", symbol)
-#             except Exception:
-#                 name = symbol
-
-#             company = Company(ticker=symbol, name=name)
-#             db.add(company)
-#             db.commit()
-#             db.refresh(company)
-
-#     except Exception as e:
-#         db.rollback()
-#         raise e
-
-# def populate_historical_data(db: Session, ticker: str, days: int = 30):
-#     try:
-#         company = db.query(Company).filter(Company.ticker == ticker).first()
-#         if not company:
-#             raise ValueError(f"Company {ticker} not found")
-
-#         if db.query(HistoricalPrice).filter(HistoricalPrice.company_id == company.id).count() > 0:
-#             return
-
-#         ticker_obj = yf.Ticker(ticker)
-#         end = datetime.today()
-#         start = end - timedelta(days=days)
-
-#         hist = ticker_obj.history(start=start.strftime("%Y-%m-%d"), end=end.strftime("%Y-%m-%d"))
-#         if hist.empty:
-#             return
-
-#         hist = hist.reset_index()
-#         for _, row in hist.iterrows():
-#             record = HistoricalPrice(
-#                 company_id=company.id,
-#                 date=row["Date"].date(),
-#                 open_price=float(row["Open"]),
-#                 high_price=float(row["High"]),
-#                 low_price=float(row["Low"]),
-#                 close_price=float(row["Close"]),
-#                 volume=float(row["Volume"])
-#             )
-#             db.add(record)
-#         db.commit()
-#     except Exception as e:
-#         db.rollback()
-#         raise e
+        hist = hist.reset_index()
+        for _, row in hist.iterrows():
+            record = HistoricalPrice(
+                company_id=company.id,
+                date=row["Date"].date(),
+                open_price=float(row["Open"]),
+                high_price=float(row["High"]),
+                low_price=float(row["Low"]),
+                close_price=float(row["Close"]),
+                volume=float(row["Volume"])
+            )
+            db.add(record)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise e
 
 # Fallback functions
 async def get_companies_fallback():

@@ -9,7 +9,7 @@ export const fetchCompanies = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       console.log(" Fetching companies from API...");
-      const response = await fetch(`${API_BASE_URL}/companies-simple`);
+      const response = await fetch(`${API_BASE_URL}/companies`);
       
       console.warn("RESPONSEEEEEEEEE: ", response);
       
