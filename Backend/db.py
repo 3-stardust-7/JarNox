@@ -77,7 +77,7 @@ def populate_companies_db(db: Session):
         table = pd.read_html(url)[0]
 
         companies_added = 0
-        for symbol in table["Symbol"].unique()[:20]:  # Get first 20 companies
+        for symbol in table["Symbol"].unique()[:10]:  # Get first 20 companies
             try:
                 print(f"Processing {symbol}...")
                 
